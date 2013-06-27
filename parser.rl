@@ -1,17 +1,25 @@
 package main;
 import(
+    "flag"
     "errors"
     "fmt"
+    "net/http"
+    eventsource "./github.com/antage/eventsource/http"
+    "./github.com/miekg/pcap"
+    "encoding/json"
 )
 
 type RedisCommand struct {
-  argnum int;
-  argsize int;
-  cur_arg int;
-  cur_arg_char int;
-  args [][]byte;
-  args_sizes []int;
+    argnum int;
+    argsize int;
+    cur_arg int;
+    cur_arg_char int;
+    Args [][]byte;
+    args_sizes []int;
+    Ipaddr []byte;
 }
+
+var clients = make([]chan<- RedisCommand, 0)
 
 var cs int
 
@@ -25,18 +33,18 @@ var cs int
   action argsize_add_digit { redisCommand.argsize = redisCommand.argsize * 10 + (int(fc)-'0'); }
   action args_init {
     redisCommand.cur_arg = -1;
-    redisCommand.args = make([][]byte,redisCommand.argnum);
+    redisCommand.Args = make([][]byte,redisCommand.argnum);
     redisCommand.args_sizes = make([]int,redisCommand.argnum);
   }
   action arg_init {
     redisCommand.cur_arg++;
     redisCommand.cur_arg_char = 0;
     redisCommand.args_sizes[redisCommand.cur_arg] = redisCommand.argsize;
-    redisCommand.args[redisCommand.cur_arg] = make([]byte,redisCommand.argsize);
+    redisCommand.Args[redisCommand.cur_arg] = make([]byte,redisCommand.argsize);
   }
   action test_arg_len { redisCommand.cur_arg_char < redisCommand.argsize }
   action arg_add_char {
-    redisCommand.args[redisCommand.cur_arg][redisCommand.cur_arg_char] = fc;
+    redisCommand.Args[redisCommand.cur_arg][redisCommand.cur_arg_char] = fc;
     redisCommand.cur_arg_char++;
   }
 
@@ -65,14 +73,83 @@ func redis_parser_exec(data string) (redisCommand *RedisCommand, err error){
   return redisCommand,nil
 }
 
-func main(){
-    input := "*3\r\n$3\r\nSET\r\n$5\r\nmykey\r\n$7\r\nmyvalue\r\n"
-    sc,err := redis_parser_exec(input)
-    if (err != nil) {
-        fmt.Println(err)
-    } else {
-        for _, command := range sc.args {
-            fmt.Println(string(command))
+func notifyClients(rediscommand_ch <-chan RedisCommand, es eventsource.EventSource) {
+    for{
+        select {
+            case command := <- rediscommand_ch:
+                fmt.Println(command)
+                b, err := json.Marshal(command)
+                fmt.Println(string(b))
+                if err != nil {
+                    fmt.Println("error:", err)
+                } else {
+                    es.SendMessage(string(b),"","")
+                }
         }
     }
+}
+
+func setupEventSource(rediscommand_ch <-chan RedisCommand) {
+    es := eventsource.New(nil)
+    defer es.Close()
+    go notifyClients(rediscommand_ch, es)
+    http.Handle("/redis", es)
+    http.Handle("/", http.FileServer(http.Dir("./ui/dist")))
+    err := http.ListenAndServe(":12345", nil)
+    if err != nil {
+        panic("ListenAndServe: " + err.Error())
+    }
+}
+
+func setupPcap(device *string, port *string, rediscommand_ch chan<- RedisCommand) (err error) {
+    var h *pcap.Pcap
+
+    ifs, _ := pcap.FindAllDevs()
+	if len(ifs) == 0 {
+		fmt.Printf("Warning: no devices found : %s\n", err)
+	}
+
+    h, err = pcap.OpenLive(*device, int32(65535), true, 1000)
+    if h == nil {
+        fmt.Printf("Openlive(%s) failed: %s\n", *device, err)
+        return
+    }
+
+    err = h.SetFilter("dst port "+*port)
+    if err != nil {
+        fmt.Println("set filter failed")
+        return
+    }
+
+    for {
+        pkt := h.Next()
+        if pkt == nil {
+            continue
+        }
+        pkt.Decode()
+        if s := string(pkt.Payload); s != "" {
+            rediscommand,err := redis_parser_exec(s)
+            if (err != nil) {
+                fmt.Println(err)
+            } else {
+                if pkt.Type == pcap.TYPE_IP {
+                  iphdr := pkt.Headers[0].(*pcap.Iphdr)
+                  rediscommand.Ipaddr = []byte(iphdr.SrcAddr())
+                }
+                rediscommand_ch <- *rediscommand
+            }
+        }
+	}
+}
+
+func main(){
+	var device *string = flag.String("d", "", "device")
+	var port *string = flag.String("p", "6379", "port")
+    flag.Parse()
+
+
+    rediscommand_ch := make(chan RedisCommand)
+
+    go setupEventSource(rediscommand_ch)
+    setupPcap(device,port,rediscommand_ch)
 }
