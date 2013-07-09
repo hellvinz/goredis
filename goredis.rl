@@ -77,9 +77,7 @@ func notifyClients(rediscommand_ch <-chan RedisCommand, es eventsource.EventSour
     for{
         select {
             case command := <- rediscommand_ch:
-                fmt.Println(command)
                 b, err := json.Marshal(command)
-                fmt.Println(string(b))
                 if err != nil {
                     fmt.Println("error:", err)
                 } else {
