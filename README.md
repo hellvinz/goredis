@@ -5,26 +5,43 @@ It captures network traffic via pcap to do so.
 
 ## building
 
-You need Go 1.1 and Ragel 6.8 to build the project.
+You need Go 1.1, Ragel 6.8 and libpcap to build the project.
 
 ```
+git clone https://github.com/hellvinz/goredis.git
+
+git submodule update -i
+
 ragel -Z -o goredis.go goredis.rl
 
 go build goredis.go
 ```
 
+### building the ui (optional)
+
+```
+cd ui
+npm install -g yo
+npm install -g generator-angular
+npm install grunt
+npm install
+bower install
+bundle
+bundle exec grunt build
+```
+
 ## running
 
 ```
-sudo ./goredis -i en0 -p 6379
+sudo ./goredis -d en0 -p 6379
 ```
 
 where en0 is the interface you want to capture the traffic on
 
-then navigate to http://localhost:12345
+then navigate to http://thehost:12345, where thehost is where you have ran goredis
 
 ## limitations
 
 capturing traffic on lo0 does not work yet
 
-tested only on macos
+tested only on macos and chrome

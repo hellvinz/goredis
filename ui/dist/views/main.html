@@ -1,0 +1,29 @@
+<div class="row">
+    <div class="span6">
+        <h3>Commands</h3>
+        <svg viewbox="30 0 581 339" preserveaspectratio="xMidyMid">
+        <g d3="" d3-data="commands" d3-renderer="chartRenderer" ng-show="$parent.showCommands"></g>
+        </svg>
+    </div>
+    <div class="span6">
+        <h3>Namespaces</h3>
+        <svg viewbox="30 0 581 339" preserveaspectratio="xMidyMid">
+        <g d3="" d3-data="namespaces" d3-renderer="chartRenderer" ng-show="$parent.showNamespaces"></g>
+        </svg>
+    </div>
+</div>
+
+<form>
+  <fieldset>
+    <legend>Redis Monitor</legend>
+    <label>Filter</label>
+    <input type="text" placeholder="Type something to filter" ng-model="searchText">
+  </fieldset>
+</form>
+
+
+<pre>
+    <span ng-repeat="redisCommand in redisCommands | filter:searchText | limitTo: 50">
+    {{redisCommand.Ipaddr}}: {{redisCommand.Args.join(" ")}}
+    </span>
+</pre>

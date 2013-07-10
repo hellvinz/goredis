@@ -11,7 +11,7 @@
     "angular-cookies": "~1.0.7",
     "angular-sanitize": "~1.0.7",
     "nvd3": "v1.0.0-beta",
-    "d3-angular": "",
+    "d3-angular": "3a37edcef1f4037aa1dee2b1a8e2937c96671df6",
     "d3": "v3.2.3"
   },
   "devDependencies": {

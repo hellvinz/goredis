@@ -99,12 +99,14 @@ func setupEventSource(rediscommand_ch <-chan RedisCommand) {
     }
 }
 
-func setupPcap(device *string, port *string, rediscommand_ch chan<- RedisCommand) (err error) {
+func setupPcap(device *string, port *string, rediscommand_ch chan<- RedisCommand) {
     var h *pcap.Pcap
+    var err error
 
-    ifs, _ := pcap.FindAllDevs()
+
+    ifs, err_str := pcap.FindAllDevs()
 	if len(ifs) == 0 {
-		fmt.Printf("Warning: no devices found : %s\n", err)
+		fmt.Printf("Warning: no devices found : %s\n", err_str)
 	}
 
     h, err = pcap.OpenLive(*device, int32(65535), true, 1000)
@@ -137,7 +139,7 @@ func setupPcap(device *string, port *string, rediscommand_ch chan<- RedisCommand
                 rediscommand_ch <- *rediscommand
             }
         }
-	}
+    }
 }
 
 func main(){
