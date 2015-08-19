@@ -126,22 +126,36 @@ func setupPcap(device *string, port *string, rediscommand_ch chan<- RedisCommand
 
     packetSource := gopacket.NewPacketSource(h, h.LinkType())
     for pkt := range packetSource.Packets() {
+        applicationLayer := pkt.ApplicationLayer()
+        
+        if applicationLayer == nil {
+            continue
+        }
+
+        s := string(applicationLayer.Payload())
+
+        if s == "" {
+          continue
+        }
+
+        rediscommand,err := redis_parser_exec(s)
+        if (err != nil) {
+            fmt.Println(err)
+            continue
+        }
+
         ipLayer := pkt.Layer(layers.LayerTypeIPv4)
         if ipLayer != nil {
-            applicationLayer := pkt.ApplicationLayer()
-            if applicationLayer != nil {
-                if s := string(applicationLayer.Payload()); s != "" {
-                     rediscommand,err := redis_parser_exec(s)
-                     if (err != nil) {
-                         fmt.Println(err)
-                     } else {
-                         ip, _ := ipLayer.(*layers.IPv4)
-                         rediscommand.Ipaddr = []byte(ip.SrcIP.String())
-                     }
-                     rediscommand_ch <- *rediscommand
-                }
+          ip, _ := ipLayer.(*layers.IPv4)
+          rediscommand.Ipaddr = []byte(ip.SrcIP.String())
+        } else {
+            ipLayer := pkt.Layer(layers.LayerTypeIPv6)
+            if ipLayer != nil {
+              ip, _ := ipLayer.(*layers.IPv6)
+              rediscommand.Ipaddr = []byte(ip.SrcIP.String())
             }
         }
+        rediscommand_ch <- *rediscommand
     }
 }
 

@@ -5,7 +5,7 @@ It captures network traffic via pcap to do so.
 
 ## building
 
-You need Go 1.1, Ragel 6.8 and libpcap to build the project.
+You need at least Go 1.1, Ragel 6.8 and libpcap and [gb](http://getgb.io/) to build the project.
 
 ```
 git clone https://github.com/hellvinz/goredis.git

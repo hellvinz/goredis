@@ -2,3 +2,4 @@
 src/cmd/goredis/*.go
 bin/
 pkg/
+*.swo
