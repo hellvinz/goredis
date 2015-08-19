@@ -8,10 +8,17 @@
 			"branch": "master"
 		},
 		{
-			"importpath": "github.com/miekg/pcap",
-			"repository": "https://github.com/miekg/pcap",
-			"revision": "9ca9a8a68c802aad6749797559378a522c8eccb6",
+			"importpath": "github.com/google/gopacket",
+			"repository": "https://github.com/google/gopacket",
+			"revision": "24fb74e1070a5632fe4222772376acd8b7f8f294",
 			"branch": "master"
+		},
+		{
+			"importpath": "github.com/google/gopacket/pcap",
+			"repository": "https://github.com/google/gopacket",
+			"revision": "24fb74e1070a5632fe4222772376acd8b7f8f294",
+			"branch": "master",
+			"path": "/pcap"
 		}
 	]
 }

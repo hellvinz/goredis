@@ -5,7 +5,9 @@ import(
     "fmt"
     "net/http"
     eventsource "github.com/antage/eventsource"
-    "github.com/miekg/pcap"
+    "github.com/google/gopacket"
+    "github.com/google/gopacket/layers"
+    "github.com/google/gopacket/pcap"
     "encoding/json"
 )
 
@@ -100,7 +102,7 @@ func setupEventSource(rediscommand_ch <-chan RedisCommand) {
 }
 
 func setupPcap(device *string, port *string, rediscommand_ch chan<- RedisCommand) {
-    var h *pcap.Pcap
+    var h *pcap.Handle
     var err error
 
 
@@ -114,31 +116,30 @@ func setupPcap(device *string, port *string, rediscommand_ch chan<- RedisCommand
         fmt.Printf("Openlive(%s) failed: %s\n", *device, err)
         return
     }
+    defer h.Close()
 
-    err = h.SetFilter("dst port "+*port)
+    err = h.SetBPFFilter("dst port "+*port)
     if err != nil {
         fmt.Println("set filter failed")
         return
     }
 
-    for {
-        pkt := h.Next()
-        if pkt == nil {
-            continue
-        }
-        pkt.Decode()
-        if s := string(pkt.Payload); s != "" {
-            fmt.Println(s)
-            rediscommand,err := redis_parser_exec(s)
-            if (err != nil) {
-                fmt.Println(err)
-            } else {
-                if pkt.Type == pcap.TYPE_IP {
-                  iphdr := pkt.Headers[0].(*pcap.Iphdr)
-                  rediscommand.Ipaddr = []byte(iphdr.SrcAddr())
-                  fmt.Println(rediscommand)
+    packetSource := gopacket.NewPacketSource(h, h.LinkType())
+    for pkt := range packetSource.Packets() {
+        ipLayer := pkt.Layer(layers.LayerTypeIPv4)
+        if ipLayer != nil {
+            applicationLayer := pkt.ApplicationLayer()
+            if applicationLayer != nil {
+                if s := string(applicationLayer.Payload()); s != "" {
+                     rediscommand,err := redis_parser_exec(s)
+                     if (err != nil) {
+                         fmt.Println(err)
+                     } else {
+                         ip, _ := ipLayer.(*layers.IPv4)
+                         rediscommand.Ipaddr = []byte(ip.SrcIP.String())
+                     }
+                     rediscommand_ch <- *rediscommand
                 }
-                rediscommand_ch <- *rediscommand
             }
         }
     }

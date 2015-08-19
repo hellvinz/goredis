@@ -40,6 +40,4 @@ then navigate to http://thehost:12345, where thehost is where you have ran gored
 
 ## limitations
 
-capturing traffic on macos lo0 does not work yet (due to go-pcap)
-
 tested only on macos/debian and chrome
