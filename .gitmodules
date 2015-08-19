@@ -1,6 +1,0 @@
-[submodule "github.com/miekg/pcap"]
-	path = github.com/miekg/pcap
-	url = https://github.com/miekg/pcap.git
-[submodule "github.com/antage/eventsource"]
-	path = github.com/antage/eventsource
-	url = https://github.com/antage/eventsource.git

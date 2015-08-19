@@ -1,2 +1,4 @@
 *.swp
-*.go
+src/cmd/goredis/*.go
+bin/
+pkg/

@@ -4,8 +4,8 @@ import(
     "errors"
     "fmt"
     "net/http"
-    eventsource "./github.com/antage/eventsource/http"
-    "./github.com/miekg/pcap"
+    eventsource "github.com/antage/eventsource"
+    "github.com/miekg/pcap"
     "encoding/json"
 )
 
@@ -81,14 +81,14 @@ func notifyClients(rediscommand_ch <-chan RedisCommand, es eventsource.EventSour
                 if err != nil {
                     fmt.Println("error:", err)
                 } else {
-                    es.SendMessage(string(b),"","")
+                    es.SendEventMessage(string(b),"","")
                 }
         }
     }
 }
 
 func setupEventSource(rediscommand_ch <-chan RedisCommand) {
-    es := eventsource.New(nil)
+    es := eventsource.New(nil,nil)
     defer es.Close()
     go notifyClients(rediscommand_ch, es)
     http.Handle("/redis", es)
@@ -128,6 +128,7 @@ func setupPcap(device *string, port *string, rediscommand_ch chan<- RedisCommand
         }
         pkt.Decode()
         if s := string(pkt.Payload); s != "" {
+            fmt.Println(s)
             rediscommand,err := redis_parser_exec(s)
             if (err != nil) {
                 fmt.Println(err)
@@ -135,6 +136,7 @@ func setupPcap(device *string, port *string, rediscommand_ch chan<- RedisCommand
                 if pkt.Type == pcap.TYPE_IP {
                   iphdr := pkt.Headers[0].(*pcap.Iphdr)
                   rediscommand.Ipaddr = []byte(iphdr.SrcAddr())
+                  fmt.Println(rediscommand)
                 }
                 rediscommand_ch <- *rediscommand
             }

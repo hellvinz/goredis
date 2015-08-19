@@ -1,0 +1,17 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/antage/eventsource",
+			"repository": "https://github.com/antage/eventsource",
+			"revision": "803f4c5af2259daa9225c72732b23e1e65ee794e",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/miekg/pcap",
+			"repository": "https://github.com/miekg/pcap",
+			"revision": "9ca9a8a68c802aad6749797559378a522c8eccb6",
+			"branch": "master"
+		}
+	]
+}

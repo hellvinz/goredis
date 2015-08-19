@@ -10,11 +10,9 @@ You need Go 1.1, Ragel 6.8 and libpcap to build the project.
 ```
 git clone https://github.com/hellvinz/goredis.git
 
-git submodule update -i
+ragel -Z -o src/cmd/goredis/main.go src/cmd/goredis/main.rl
 
-ragel -Z -o goredis.go goredis.rl
-
-go build goredis.go
+gb build
 ```
 
 ### building the ui (optional)
@@ -33,7 +31,7 @@ bundle exec grunt build
 ## running
 
 ```
-sudo ./goredis -d en0 -p 6379
+sudo ./bin/goredis -d en0 -p 6379
 ```
 
 where en0 is the interface you want to capture the traffic on
