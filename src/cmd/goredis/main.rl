@@ -52,7 +52,7 @@ var cs int
 
   redis_argnum = '*' ( digit @argnum_add_digit )+ '\r\n';
   redis_argsize = '$' @argsize_reset ( digit @argsize_add_digit )+ '\r\n';
-  redis_arg = (any when test_arg_len @arg_add_char)+ '\r\n';
+  redis_arg = (any when test_arg_len @arg_add_char)* '\r\n';
   redis_cmd = redis_argnum @args_init ( redis_argsize @arg_init redis_arg )+;
 
   main := redis_cmd;
