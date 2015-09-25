@@ -1,5 +1,5 @@
 *.swp
-src/redis_protocol/*.go
+src/redis_protocol/parse.go
 bin/
 pkg/
 *.swo
