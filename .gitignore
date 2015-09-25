@@ -1,5 +1,5 @@
 *.swp
-src/cmd/goredis/*.go
+src/redis_protocol/*.go
 bin/
 pkg/
 *.swo

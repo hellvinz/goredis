@@ -10,7 +10,7 @@ You need at least Go 1.1, Ragel 6.8 and libpcap and [gb](http://getgb.io/) to bu
 ```
 git clone https://github.com/hellvinz/goredis.git
 
-ragel -Z -o src/cmd/goredis/main.go src/cmd/goredis/main.rl
+ragel -Z -o src/redis_protocol/parse.go src/redis_protocol/parse.rl
 
 gb build
 ```
