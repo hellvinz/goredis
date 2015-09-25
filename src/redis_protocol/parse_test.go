@@ -9,6 +9,7 @@ func TestParse(t *testing.T) {
 	}{
 		{"*4\r\n$5\r\nSETEX\r\n$6\r\ne:ntry\r\n$2\r\n30\r\n$2\r\n\r\n", true},
 		{"*4\r\n$5\r\nSETEX\r\n$6\r\ne:ntry\r\n$2\r\n30\r\n$0\r\n\r\n", false},
+		{"*4\r\n$5\r\nSETEX\r\n$29\r\nprevious:cache:thing:11841428\r\n$2\r\n30\r\n$0\r\n\r\n", false},
 	}
 	for _, c := range cases {
 		_, err := Parse(c.in)
