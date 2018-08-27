@@ -1,0 +1,6 @@
+# github.com/antage/eventsource v0.0.0-20150318155416-803f4c5af225
+github.com/antage/eventsource
+# github.com/google/gopacket v0.0.0-20150818220739-24fb74e1070a
+github.com/google/gopacket
+github.com/google/gopacket/layers
+github.com/google/gopacket/pcap

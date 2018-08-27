@@ -1,0 +1,4 @@
+github.com/antage/eventsource v0.0.0-20150318155416-803f4c5af225 h1:Mg+Jg/Q+HmSWoC+MZQYCGXQv8QDY7DhGpZcKSir1GUc=
+github.com/antage/eventsource v0.0.0-20150318155416-803f4c5af225/go.mod h1:WOB/cuaphqWnO64ntuJ3CbpM+kDsKaQp1aeIB4AuXGI=
+github.com/google/gopacket v0.0.0-20150818220739-24fb74e1070a h1:nU8SflY3URy7WnyNEHqWArXK2nSy1bEIutXFYnOzxvE=
+github.com/google/gopacket v0.0.0-20150818220739-24fb74e1070a/go.mod h1:UCLx9mCmAwsVbn6qQl1WIEt2SO7Nd2fD0th1TBAsqBw=

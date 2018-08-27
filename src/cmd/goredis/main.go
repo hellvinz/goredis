@@ -8,8 +8,8 @@ import (
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
+	"github.com/hellvinz/goredis/src/redis_protocol"
 	"net/http"
-	"redis_protocol"
 )
 
 func notifyClients(rediscommand_ch <-chan redis_protocol.RedisCommand, es eventsource.EventSource) {
